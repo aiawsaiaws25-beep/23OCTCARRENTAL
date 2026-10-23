@@ -1,7 +1,7 @@
 // Playwright fixtures: unique users per test, logged-in customer/admin pages,
 // and direct access to the e2e database for setup/assertions.
 import { randomUUID } from "node:crypto";
-import { type APIRequestContext, type Browser, type Page, test as base, expect } from "@playwright/test";
+import { type APIRequestContext, type Browser, type BrowserContextOptions, type Page, test as base, expect } from "@playwright/test";
 import { query } from "../tests/helpers/db";
 
 export const PASSWORD = "Qa-Test-Passw0rd!";
@@ -46,9 +46,27 @@ export async function makeAdmin(email: string) {
   expect(rows.length, `no user ${email} to promote`).toBe(1);
 }
 
-/** New browser context with a freshly registered user logged in. */
-export async function newUserPage(browser: Browser, baseURL: string, opts: { admin?: boolean; prefix?: string } = {}) {
-  const context = await browser.newContext({ baseURL });
+/**
+ * Production builds rate-limit Better Auth per client IP (x-forwarded-for when present). Every test
+ * context gets its own private-range address so parallel sign-ups don't share one bucket.
+ * (On Vercel the platform sets x-forwarded-for itself, so clients cannot choose their bucket.)
+ */
+export function fakeClientIp() {
+  const b = () => Math.floor(Math.random() * 254) + 1;
+  return `10.${b()}.${b()}.${b()}`;
+}
+
+/** New browser context (same device emulation as the project) with a freshly registered user logged in. */
+export async function newUserPage(
+  browser: Browser,
+  baseURL: string,
+  opts: { admin?: boolean; prefix?: string; contextOptions?: BrowserContextOptions } = {},
+) {
+  const context = await browser.newContext({
+    ...opts.contextOptions,
+    baseURL,
+    extraHTTPHeaders: { ...opts.contextOptions?.extraHTTPHeaders, "x-forwarded-for": fakeClientIp() },
+  });
   const page = await context.newPage();
   const user = await signUp(page.request, baseURL, {
     email: uniqueEmail(opts.prefix ?? (opts.admin ? "admin" : "customer")),
@@ -65,24 +83,29 @@ export async function newUserPage(browser: Browser, baseURL: string, opts: { adm
 }
 
 type Fixtures = {
+  deviceOptions: BrowserContextOptions;
   customer: { page: Page; user: TestUser };
   otherCustomer: { page: Page; user: TestUser };
   admin: { page: Page; user: TestUser };
 };
 
 export const test = base.extend<Fixtures>({
-  customer: async ({ browser, baseURL }, provide) => {
-    const s = await newUserPage(browser, baseURL!, { prefix: "customer" });
+  // Default page/request contexts get their own client IP as well.
+  extraHTTPHeaders: async ({}, provide) => provide({ "x-forwarded-for": fakeClientIp() }),
+  deviceOptions: async ({ viewport, userAgent, isMobile, hasTouch, deviceScaleFactor, locale, timezoneId }, provide) =>
+    provide({ viewport, userAgent, isMobile, hasTouch, deviceScaleFactor, locale, timezoneId }),
+  customer: async ({ browser, baseURL, deviceOptions }, provide) => {
+    const s = await newUserPage(browser, baseURL!, { prefix: "customer", contextOptions: deviceOptions });
     await provide({ page: s.page, user: s.user });
     await s.context.close();
   },
-  otherCustomer: async ({ browser, baseURL }, provide) => {
-    const s = await newUserPage(browser, baseURL!, { prefix: "other" });
+  otherCustomer: async ({ browser, baseURL, deviceOptions }, provide) => {
+    const s = await newUserPage(browser, baseURL!, { prefix: "other", contextOptions: deviceOptions });
     await provide({ page: s.page, user: s.user });
     await s.context.close();
   },
-  admin: async ({ browser, baseURL }, provide) => {
-    const s = await newUserPage(browser, baseURL!, { admin: true });
+  admin: async ({ browser, baseURL, deviceOptions }, provide) => {
+    const s = await newUserPage(browser, baseURL!, { admin: true, contextOptions: deviceOptions });
     await provide({ page: s.page, user: s.user });
     await s.context.close();
   },

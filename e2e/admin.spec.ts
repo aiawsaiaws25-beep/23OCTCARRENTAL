@@ -50,8 +50,11 @@ test.describe("admin desk", () => {
     expect((await reservation(id)).status).toBe("PICKED_UP");
 
     // Damage report with a photo, AED 150 charge
-    await page.getByText("Report damage").click();
     const dmg = page.getByTestId("damage-form");
+    await expect(async () => {
+      if (!(await dmg.getByLabel("Severity").isVisible())) await page.locator("summary", { hasText: "Report damage" }).click();
+      await expect(dmg.getByLabel("Severity")).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 15_000 });
     await dmg.getByLabel("Severity").selectOption("MINOR");
     await dmg.getByLabel("Description").fill("Scratch on rear bumper (QA)");
     await dmg.getByLabel("Charge to customer (AED, excl. VAT)").fill("150");
@@ -178,8 +181,10 @@ test.describe("admin fleet / branches / pricing", () => {
     const a = admin.page;
     await a.goto(`/admin/fleet/${v.vehicleId}`);
     const m = a.getByTestId("maintenance-form");
-    await m.getByLabel("Start date and time").fill(`${day(21)}T08:00`);
-    await m.getByLabel("End date and time").fill(`${day(21)}T18:00`);
+    await m.getByLabel("Start date").fill(day(21));
+    await m.getByLabel("Start time").fill("08:00");
+    await m.getByLabel("End date").fill(day(21));
+    await m.getByLabel("End time").fill("18:00");
     await m.getByLabel("Reason").fill("QA service");
     await m.getByRole("button", { name: "Schedule maintenance" }).click();
     await expect.poll(async () => (await e2eDb().query("select 1 from maintenance_blocks where vehicle_id = $1 and cancelled_at is null", [v.vehicleId])).length).toBe(1);

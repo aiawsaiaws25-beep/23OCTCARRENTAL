@@ -52,18 +52,18 @@ Local first: payments use `PAYMENTS_PROVIDER=fake`, storage `STORAGE_PROVIDER=lo
 
 ## qa
 - [x] (qa) Q1 Test harness: test DB reset + migrate + seed helpers; Playwright auth fixtures — `tests/helpers/{db,factory}.ts`, vitest globalSetup rebuilds driveeasy_test; Playwright server runs on driveeasy_e2e (`e2e/prepare-db.ts`), fixtures in `e2e/fixtures.ts`
-- [ ] Q2 Auth: register, login, logout, authorization
-- [ ] Q3 Search, branches, date ranges, filters, availability calendars
-- [ ] Q4 Full rental: search → payment → voucher → check-out → return
-- [~] (qa) Q5 Concurrency: two simultaneous overlapping reservations → exactly one succeeds — DB level (20x10 raw tx) + service level (20 rounds x 10 users, same-key x10, parallel pay) passing; 2-browser e2e pending A6
-- [~] (qa) Q6 Back-to-back rentals (end == next start) both succeed — DB + service level passing (hold, pay, check-out after previous check-in); e2e pending A6
-- [ ] Q7 Expired holds + release endpoint (idempotent, CRON_SECRET enforced)
-- [ ] Q8 Pricing: daily rates, extras, one-way fee, VAT, late return, deposit
-- [ ] Q9 Payments: success, failure, cancel, retry, refund, deposit release, duplicate webhook
-- [ ] Q10 Access control: other users' reservations, vouchers, licence files; admin-only screens
+- [x] (qa) Q2 Auth: register, login, logout, authorization — e2e/auth.spec.ts (UI register/login/logout, duplicate email, wrong password, short password, CSRF origin, role self-escalation, protected + admin routes)
+- [x] (qa) Q3 Search, branches, date ranges, filters, availability calendars — tests/integration/catalog.test.ts + e2e/rental.spec.ts (filters, sort, invalid ranges, closed branch, Dubai-time calendar)
+- [x] (qa) Q4 Full rental: search → payment → voucher → check-out → return — tests/integration/operations.test.ts + e2e/rental.spec.ts + e2e/admin.spec.ts (desk lookup, check-out, damage+photo, late check-in charges from deposit)
+- [x] (qa) Q5 Concurrency: exactly one of N overlapping reservations succeeds — DB (20x10 raw tx), service (20 rounds x 10 users, same-key x10, parallel pay/cancel/webhooks), e2e two browser contexts x3 (e2e/concurrency.spec.ts)
+- [x] (qa) Q6 Back-to-back rentals (end == next start) both succeed — DB, service, e2e two sessions; next renter's check-out blocked until previous check-in
+- [x] (qa) Q7 Expired holds + release endpoint — service (idempotent, concurrent runs, settles refunds/deposits) + HTTP (401 missing/wrong secret, GET+POST, expired period bookable again)
+- [x] (qa) Q8 Pricing — tests/unit/pricing.test.ts (VAT rounding, extras caps, one-way specificity, seasonal, duration discount, late fee, fuel, 2000-quote integer property) + tampering ignored (service + e2e)
+- [x] (qa) Q9 Payments: success, decline→retry, double submit, two tabs, deposit decline, expiry refund, cancellation refunds (48h/24h/<24h), deposit release/capture, duplicate + concurrent webhooks, bad/stale signatures (fake provider)
+- [x] (qa) Q10 Access control — service ownership checks, admin permission matrix (28 services x customer/anonymous), e2e URL guessing, forged server-action ids, replayed admin action, licence/damage file 200/404 matrix + path traversal
 - [x] (qa) Q11 Migrations on a clean DB — fresh driveeasy_clean → migrate (x2, idempotent) → seed; exclusion constraint, triggers, uuid PKs, int money, timestamptz, FKs/checks/uniques asserted (tests/integration/migrations.test.ts)
-- [ ] Q12 Production build (`next build` + `next start`) locally; preview/production Vercel builds once deployed
-- [ ] Q13 Desktop + mobile layouts (Playwright mobile projects)
+- [~] (qa) Q12 Production build (`next build` + `next start`) locally — running; Vercel preview/production blocked on cloud access
+- [x] (qa) Q13 Desktop + mobile layouts — Playwright chromium/firefox/webkit + Pixel 7 + iPhone 14; no horizontal overflow on public, customer and admin pages; mobile nav
 
 ## Bugs
 <!-- qa: `- [ ] B1 (owner: app|db-engine) summary — repro — found in test X`; owner marks [x] when fixed, qa retests and adds "verified". -->
