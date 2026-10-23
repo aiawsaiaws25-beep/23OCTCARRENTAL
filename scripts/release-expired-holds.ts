@@ -1,11 +1,25 @@
-import { releaseExpiredHolds } from "@/lib/jobs/release-expired-holds";
-import { getPaymentProvider } from "@/lib/services/payments";
+// `pnpm jobs:release-holds` — the local equivalent of the Vercel Cron call to
+// /api/cron/release-holds. Runs with --conditions=react-server so server-only modules load.
+import { existsSync } from "node:fs";
+
+if (existsSync(".env.local")) process.loadEnvFile(".env.local");
 
 async function main() {
-  const result = await releaseExpiredHolds(getPaymentProvider());
-  console.log(`Released ${result.released.length} expired hold(s).`);
-  for (const f of result.failed) console.error(`Failed to release ${f.id}: ${f.error}`);
-  process.exitCode = result.failed.length ? 1 : 0;
+  const { releaseExpiredHolds } = await import("@/server/holds");
+  const { db } = await import("@/db");
+  try {
+    const result = await releaseExpiredHolds();
+    console.log(
+      `Expired ${result.expired.length} hold(s); settled ${result.settled.length} reservation(s); ${result.errors.length} error(s).`,
+    );
+    for (const e of result.errors) console.error(`Failed ${e.reservationId}: ${e.error}`);
+    process.exitCode = result.errors.length ? 1 : 0;
+  } finally {
+    await db.$client.end();
+  }
 }
 
-main();
+main().catch((err) => {
+  console.error(err);
+  process.exitCode = 1;
+});

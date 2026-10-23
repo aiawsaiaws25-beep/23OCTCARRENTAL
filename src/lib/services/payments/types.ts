@@ -1,9 +1,10 @@
 // Provider-neutral payments interface. The app only talks to this; the fake
-// local provider and a future real one (e.g. Stripe) both implement it.
+// local provider and the Stripe test-mode adapter both implement it.
 
-export type Money = { amount: number; currency: string }; // amount in minor units (cents)
+export type Money = { amount: number; currency: string }; // amount in minor units (fils for AED)
 
-export type PaymentStatus = "succeeded" | "failed" | "canceled" | "refunded" | "partially_refunded";
+// "pending" = the provider has not finished (e.g. Stripe "processing" / "requires_action").
+export type PaymentStatus = "pending" | "succeeded" | "failed" | "canceled" | "refunded" | "partially_refunded";
 
 export type Payment = Money & {
   id: string;
@@ -32,7 +33,8 @@ export type WebhookEventType =
   | "payment.refunded"
   | "deposit.held"
   | "deposit.released"
-  | "deposit.captured";
+  | "deposit.captured"
+  | "unsupported"; // provider event we do not act on (acknowledged and ignored)
 
 export type WebhookEvent = {
   id: string; // stable across redeliveries, so handlers can de-duplicate
@@ -43,25 +45,33 @@ export type WebhookEvent = {
 
 export type CreatePaymentInput = Money & {
   // Real providers take a tokenised card here. The fake provider accepts
-  // "pm_fake_success" (default) or "pm_fake_declined".
+  // "pm_fake_success" (default) or "pm_fake_declined"; Stripe test mode accepts
+  // test PaymentMethods such as "pm_card_visa" or "pm_card_chargeDeclined".
   paymentMethod?: string;
   metadata?: Record<string, string>;
+  // Same key => same provider payment; a retried request never charges twice.
+  idempotencyKey?: string;
 };
 
 export type HoldDepositInput = Money & {
   expiresAt: Date;
   paymentMethod?: string;
   metadata?: Record<string, string>;
+  idempotencyKey?: string;
 };
+
+export type OperationOptions = { idempotencyKey?: string };
 
 export interface PaymentProvider {
   readonly name: string;
+  /** Request header that carries the webhook signature. */
+  readonly signatureHeader: string;
   createPayment(input: CreatePaymentInput): Promise<Payment>;
   cancelPayment(paymentId: string): Promise<Payment>;
-  refundPayment(paymentId: string, amount?: number): Promise<Payment>;
+  refundPayment(paymentId: string, amount?: number, opts?: OperationOptions): Promise<Payment>;
   holdDeposit(input: HoldDepositInput): Promise<DepositHold>;
   releaseDeposit(holdId: string): Promise<DepositHold>;
-  captureDeposit(holdId: string, amount?: number): Promise<DepositHold>;
+  captureDeposit(holdId: string, amount?: number, opts?: OperationOptions): Promise<DepositHold>;
   listHolds(filter: { status?: DepositHoldStatus; expiresBefore?: Date }): Promise<DepositHold[]>;
   // Throws if the signature is missing, wrong or too old.
   verifyWebhook(rawBody: string, signatureHeader: string | null): WebhookEvent;
@@ -70,7 +80,7 @@ export interface PaymentProvider {
 export class PaymentError extends Error {
   constructor(
     message: string,
-    readonly code: "not_found" | "declined" | "invalid_state" | "invalid_amount" | "bad_signature",
+    readonly code: "not_found" | "declined" | "invalid_state" | "invalid_amount" | "bad_signature" | "provider_error",
   ) {
     super(message);
     this.name = "PaymentError";

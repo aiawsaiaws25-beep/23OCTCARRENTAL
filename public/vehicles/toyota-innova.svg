@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" role="img" aria-label="Toyota Innova">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef7f7"/><stop offset="1" stop-color="#fbf7ef"/></linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a6acaf" stop-opacity="0.85"/><stop offset="1" stop-color="#a6acaf"/></linearGradient>
+  </defs>
+  <rect width="600" height="340" fill="url(#bg)"/>
+  <ellipse cx="300" cy="284" rx="250" ry="14" fill="#14181f" opacity="0.12"/>
+  <path d="M70 210 L90 110 Q95 90 125 90 L420 90 Q445 92 460 120 L500 200 Q530 208 530 235 L530 266 L70 266 Z" fill="url(#body)" stroke="#14181f" stroke-opacity="0.45" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M110 180 L120 108 L230 108 L230 180 Z M245 108 L405 108 Q425 110 435 130 L460 180 L245 180 Z" fill="#dbe7f0" opacity="0.95"/>
+  <rect x="505" y="226" width="20" height="10" rx="3" fill="#f4ead4"/>
+  <rect x="72" y="228" width="16" height="9" rx="3" fill="#e57373"/>
+  <circle cx="160" cy="266" r="34" fill="#1f2937"/><circle cx="160" cy="266" r="16" fill="#9ca3af"/><circle cx="440" cy="266" r="34" fill="#1f2937"/><circle cx="440" cy="266" r="16" fill="#9ca3af"/>
+  <text x="300" y="50" text-anchor="middle" font-family="system-ui, sans-serif" font-size="26" font-weight="700" fill="#14181f">Toyota Innova</text>
+</svg>

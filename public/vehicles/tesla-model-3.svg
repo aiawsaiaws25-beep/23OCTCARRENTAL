@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" role="img" aria-label="Tesla Model 3">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef7f7"/><stop offset="1" stop-color="#fbf7ef"/></linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d5d8dc" stop-opacity="0.85"/><stop offset="1" stop-color="#d5d8dc"/></linearGradient>
+  </defs>
+  <rect width="600" height="340" fill="url(#bg)"/>
+  <ellipse cx="300" cy="273" rx="250" ry="14" fill="#14181f" opacity="0.12"/>
+  <path d="M60 225 L130 170 Q160 150 210 148 L310 148 Q350 150 390 180 L430 205 Q500 210 530 228 L535 255 L60 255 Z" fill="url(#body)" stroke="#14181f" stroke-opacity="0.45" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M160 200 L190 170 Q205 160 230 160 L280 160 L280 200 Z M292 160 L310 160 Q340 162 362 182 L378 200 L292 200 Z" fill="#dbe7f0" opacity="0.95"/>
+  <rect x="505" y="215" width="20" height="10" rx="3" fill="#f4ead4"/>
+  <rect x="72" y="217" width="16" height="9" rx="3" fill="#e57373"/>
+  <circle cx="160" cy="255" r="34" fill="#1f2937"/><circle cx="160" cy="255" r="16" fill="#9ca3af"/><circle cx="440" cy="255" r="34" fill="#1f2937"/><circle cx="440" cy="255" r="16" fill="#9ca3af"/>
+  <text x="300" y="50" text-anchor="middle" font-family="system-ui, sans-serif" font-size="26" font-weight="700" fill="#14181f">Tesla Model 3</text>
+</svg>

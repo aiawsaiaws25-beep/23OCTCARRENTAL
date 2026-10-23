@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" role="img" aria-label="Toyota Corolla">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef7f7"/><stop offset="1" stop-color="#fbf7ef"/></linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ecf0f1" stop-opacity="0.85"/><stop offset="1" stop-color="#ecf0f1"/></linearGradient>
+  </defs>
+  <rect width="600" height="340" fill="url(#bg)"/>
+  <ellipse cx="300" cy="280" rx="250" ry="14" fill="#14181f" opacity="0.12"/>
+  <path d="M70 210 L110 160 Q130 140 170 138 L300 136 Q345 136 375 165 L410 195 Q470 200 510 215 Q530 222 530 240 L530 262 L70 262 Z" fill="url(#body)" stroke="#14181f" stroke-opacity="0.45" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M128 196 L155 160 Q165 150 185 150 L245 150 L245 196 Z M258 150 L300 150 Q330 150 350 170 L370 196 L258 196 Z" fill="#dbe7f0" opacity="0.95"/>
+  <rect x="505" y="222" width="20" height="10" rx="3" fill="#f4ead4"/>
+  <rect x="72" y="224" width="16" height="9" rx="3" fill="#e57373"/>
+  <circle cx="160" cy="262" r="34" fill="#1f2937"/><circle cx="160" cy="262" r="16" fill="#9ca3af"/><circle cx="440" cy="262" r="34" fill="#1f2937"/><circle cx="440" cy="262" r="16" fill="#9ca3af"/>
+  <text x="300" y="50" text-anchor="middle" font-family="system-ui, sans-serif" font-size="26" font-weight="700" fill="#14181f">Toyota Corolla</text>
+</svg>

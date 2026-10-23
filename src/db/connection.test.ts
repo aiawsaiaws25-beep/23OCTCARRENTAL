@@ -1,7 +1,7 @@
 import { Client } from "pg";
 import { describe, expect, it } from "vitest";
 
-const urls = { driveeasy_dev: process.env.DATABASE_URL, driveeasy_test: process.env.TEST_DATABASE_URL };
+const urls = { driveeasy_dev: process.env.QA_DEV_DATABASE_URL ?? process.env.DATABASE_URL, driveeasy_test: process.env.TEST_DATABASE_URL };
 
 describe.each(Object.entries(urls))("%s", (name, url) => {
   it("connects and has btree_gist", async () => {

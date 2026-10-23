@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300" role="img" aria-label="DriveEasy Dubai Marina branch">
+  <rect width="600" height="300" fill="#0c5053"/>
+  <circle cx="480" cy="80" r="40" fill="#d6a756" opacity="0.9"/>
+  <path d="M0 230 L40 230 L40 170 L70 170 L70 120 L95 120 L95 190 L130 190 L130 150 L150 150 L150 60 L160 40 L170 60 L170 200 L210 200 L210 140 L250 140 L250 210 L300 210 L300 100 L330 100 L330 180 L370 180 L370 130 L400 130 L400 220 L450 220 L450 160 L490 160 L490 200 L540 200 L540 150 L570 150 L570 230 L600 230 L600 300 L0 300 Z" fill="#062a2c"/>
+  <rect y="250" width="600" height="50" fill="#13777b"/>
+  <text x="30" y="285" font-family="system-ui, sans-serif" font-size="26" font-weight="700" fill="#ffffff">Dubai Marina</text>
+</svg>

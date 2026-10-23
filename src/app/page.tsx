@@ -1,69 +1,145 @@
-import Image from "next/image";
+import Link from "next/link";
+import { connection } from "next/server";
+import { Suspense } from "react";
+import { formatAED } from "@/components/format";
+import { SearchForm } from "@/components/search-form";
+import { SectionBoundary } from "@/components/section-boundary";
+import { addDays, todayIn } from "@/components/search-params";
+import { Alert } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Container } from "@/components/ui/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
+import { listBranches, listCategories } from "@/server/catalog";
+
+async function HeroSearch() {
+  await connection();
+  const branches = await listBranches();
+  if (!branches.length) {
+    return <Alert tone="warning">No branches are open for online booking right now. Please check back soon.</Alert>;
+  }
+  const today = todayIn();
+  return (
+    <SearchForm
+      branches={branches.map((b) => ({ code: b.code, name: b.name, city: b.city }))}
+      minDate={today}
+      defaults={{
+        pickupBranch: branches[0].code,
+        pickupDate: addDays(today, 1),
+        pickupTime: "10:00",
+        returnDate: addDays(today, 4),
+        returnTime: "10:00",
+      }}
+    />
+  );
+}
+
+async function Categories() {
+  const categories = await listCategories();
+  if (!categories.length) return null;
+  return (
+    <section aria-labelledby="categories-heading">
+      <h2 id="categories-heading" className="text-2xl font-bold tracking-tight">
+        Cars for every trip
+      </h2>
+      <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {categories.map((c) => (
+          <li key={c.id} className="rounded-xl border border-line bg-white p-5 shadow-sm">
+            <h3 className="font-semibold">{c.name}</h3>
+            {c.description ? <p className="mt-1 text-sm text-muted">{c.description}</p> : null}
+            <p className="mt-3 text-sm">
+              From <span className="font-semibold">{formatAED(c.dailyRateFils)}</span> / day
+            </p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+async function Branches() {
+  const branches = await listBranches();
+  if (!branches.length) return null;
+  return (
+    <section aria-labelledby="branches-heading">
+      <div className="flex items-end justify-between gap-4">
+        <h2 id="branches-heading" className="text-2xl font-bold tracking-tight">
+          Pick up across the UAE
+        </h2>
+        <Link href="/branches" className="text-sm font-medium text-brand-700 underline">
+          All branches
+        </Link>
+      </div>
+      <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {branches.map((b) => (
+          <li key={b.id}>
+            <Link
+              href={`/branches/${b.code}`}
+              className="block h-full rounded-xl border border-line bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="font-semibold">{b.name}</h3>
+                {b.isAirport ? <Badge tone="info">Airport</Badge> : null}
+              </div>
+              <p className="mt-1 text-sm text-muted">
+                {b.city}, {b.emirate}
+              </p>
+              <p className="mt-2 text-sm">{b.openingHours}</p>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+const perks = [
+  { title: "All-in prices", body: "Daily rate, extras, one-way fee and 5% VAT are shown before you pay." },
+  { title: "Free cancellation", body: "Cancel for free up to 48 hours before pick-up." },
+  { title: "Digital voucher", body: "Show the QR code at the counter and drive away." },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <>
+      <section className="bg-gradient-to-b from-brand-800 to-brand-600 pb-10 pt-12 text-white sm:pb-14 sm:pt-16">
+        <Container>
+          <h1 className="max-w-2xl text-3xl font-bold tracking-tight sm:text-5xl">Rent a car in the UAE</h1>
+          <p className="mt-3 max-w-xl text-brand-50 sm:text-lg">
+            From Dubai Marina to Abu Dhabi airport. Choose your branch and dates, and see the full price up front.
           </p>
+          <div className="mt-8 rounded-2xl bg-white p-4 text-ink shadow-xl sm:p-6">
+            <SectionBoundary label="the branch list">
+              <Suspense fallback={<Skeleton className="h-40 lg:h-24" />}>
+                <HeroSearch />
+              </Suspense>
+            </SectionBoundary>
+          </div>
+        </Container>
+      </section>
+      <Container className="py-4">
+        <ul className="mt-10 grid gap-4 sm:grid-cols-3">
+          {perks.map((p) => (
+            <li key={p.title} className="rounded-xl bg-sand-50 p-5 ring-1 ring-sand-100">
+              <h2 className="font-semibold">{p.title}</h2>
+              <p className="mt-1 text-sm text-muted">{p.body}</p>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-16">
+          <SectionBoundary label="car categories">
+            <Suspense fallback={<Skeleton className="h-48" />}>
+              <Categories />
+            </Suspense>
+          </SectionBoundary>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="mt-16">
+          <SectionBoundary label="branches">
+            <Suspense fallback={<Skeleton className="h-48" />}>
+              <Branches />
+            </Suspense>
+          </SectionBoundary>
         </div>
-      </main>
-    </div>
+      </Container>
+    </>
   );
 }

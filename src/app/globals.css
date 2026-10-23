@@ -1,26 +1,57 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* DriveEasy design tokens. Colours are chosen for WCAG AA contrast on white. */
+@theme {
+  --color-brand-50: #eef7f7;
+  --color-brand-100: #d5ecec;
+  --color-brand-200: #a9d7d8;
+  --color-brand-500: #13777b;
+  --color-brand-600: #0f6467;
+  --color-brand-700: #0c5053;
+  --color-brand-800: #093d3f;
+  --color-brand-900: #062a2c;
+  --color-sand-50: #fbf7ef;
+  --color-sand-100: #f4ead4;
+  --color-sand-400: #d6a756;
+  --color-sand-500: #c99542;
+  --color-sand-700: #7a5719;
+  --color-ink: #14181f;
+  --color-muted: #4b5563;
+  --color-line: #e2e5ea;
+  --color-surface: #ffffff;
+  --color-canvas: #f6f7f9;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
 }
